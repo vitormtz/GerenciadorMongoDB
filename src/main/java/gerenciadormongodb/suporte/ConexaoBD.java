@@ -23,16 +23,16 @@ public class ConexaoBD {
             var database = mongoClient.getDatabase("locadora");
             MongoCollection<Document> collection = database.getCollection(String.valueOf(informacoes.get(0)));
             FindIterable fit;
-
+    
             if (informacoes.get(2).toString().isBlank()) {
-                informacoes.set(2, 0);
+                informacoes.set(2, 60000);
             }
 
             if (!informacoes.get(1).toString().isEmpty()) {
                 Document filter = Document.parse(String.valueOf(informacoes.get(1)));
-                fit = collection.find(filter).maxTime((int) informacoes.get(2), TimeUnit.MILLISECONDS);
+                fit = collection.find(filter).maxTime(Integer.parseInt(informacoes.get(2).toString()), TimeUnit.MILLISECONDS);
             } else {
-                fit = collection.find().maxTime((int) informacoes.get(2), TimeUnit.MILLISECONDS);
+                fit = collection.find().maxTime(Integer.parseInt(informacoes.get(2).toString()), TimeUnit.MILLISECONDS);
             }
             if (!informacoes.get(3).toString().isEmpty()) {
                 Document project = Document.parse(String.valueOf(informacoes.get(3)));
@@ -48,7 +48,7 @@ public class ConexaoBD {
             if (!informacoes.get(6).toString().isEmpty()) {
                 fit.limit((int) informacoes.get(6));
             }
-            
+
             long end = System.nanoTime();
             long time = (end - start);
             double seconds = (double) time / 1000000000;
@@ -60,7 +60,7 @@ public class ConexaoBD {
             new CriacaoTabela().popularTabela(docs, tabela);
 
             mongoClient.close();
-            
+
             return seconds;
         }
     }
