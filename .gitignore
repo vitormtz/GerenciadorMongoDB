@@ -1,0 +1,16 @@
+# Saída de compilação Maven
+target/
+
+# Configuração de conexão com credenciais (use db.properties.example como modelo)
+src/main/resources/db.properties
+
+# Arquivos locais do NetBeans
+nbproject/private/
+nbactions.xml
+build/
+dist/
+
+# Sistema operacional
+Thumbs.db
+Desktop.ini
+.DS_Store

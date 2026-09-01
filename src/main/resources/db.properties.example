@@ -1,0 +1,2 @@
+db.uri=mongodb+srv://seu_usuario:sua_senha@seu_cluster.mongodb.net/?retryWrites=true&w=majority
+db.database=locadora

@@ -3,10 +3,15 @@ package gerenciadormongodb.suporte;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import org.bson.Document;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 
@@ -16,11 +21,27 @@ import javax.swing.JTable;
  */
 public class ConexaoBD {
 
+    private static Properties carregarConfiguracao() {
+        Properties config = new Properties();
+        try ( InputStream entrada = ConexaoBD.class.getResourceAsStream("/db.properties")) {
+            if (entrada == null) {
+                throw new IOException("db.properties nao encontrado. "
+                        + "Copie db.properties.example para db.properties e preencha os dados de conexao.");
+            }
+            config.load(entrada);
+        } catch (IOException ex) {
+            Logger.getLogger(ConexaoBD.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return config;
+    }
+
     public double ConexaoBD(ArrayList informacoes, JTable tabela) throws SQLException {
         long start = System.nanoTime();
 
-        try ( var mongoClient = MongoClients.create("mongodb+srv://seu_usuario:sua_senha@seu_cluster.mongodb.net/?retryWrites=true&w=majority")) {
-            var database = mongoClient.getDatabase("locadora");
+        Properties config = carregarConfiguracao();
+
+        try ( var mongoClient = MongoClients.create(config.getProperty("db.uri"))) {
+            var database = mongoClient.getDatabase(config.getProperty("db.database"));
             MongoCollection<Document> collection = database.getCollection(String.valueOf(informacoes.get(0)));
             FindIterable fit;
     
@@ -66,12 +87,14 @@ public class ConexaoBD {
     }
 
     public static void getCollection(JComboBox combo) {
-        try ( var mongoClient = MongoClients.create("mongodb+srv://seu_usuario:sua_senha@seu_cluster.mongodb.net/?retryWrites=true&w=majority")) {
+        Properties config = carregarConfiguracao();
+
+        try ( var mongoClient = MongoClients.create(config.getProperty("db.uri"))) {
             combo.removeAllItems();
             ComboItem item = new ComboItem();
             int contador = 0;
 
-            for (String listCollectionName : mongoClient.getDatabase("locadora").listCollectionNames()) {
+            for (String listCollectionName : mongoClient.getDatabase(config.getProperty("db.database")).listCollectionNames()) {
                 item = new ComboItem();
                 item.setCodigo(contador);
                 item.setDescricao(listCollectionName);
